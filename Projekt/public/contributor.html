@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <title>User</title>
+</head>
+
+<body>
+    <div class="container" id="app">
+        <nav class="navbar navbar-expand-lg navbar-light bg-danger">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Navbar</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                        <a class="nav-link active" aria-current="page" href="#">user</a>
+                        <a class="nav-link" href="#">logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="card">
+            <div class="card" v-for="question in questions" v-bind:key="question.id">
+                <div class="card-body">
+                    <h5 class="card-title">{{ question.title }}</h5>
+                    <p class="card-text">{{ question.category }}</p>
+                    <p class="card-text"> {{ question.questionText }}</p>
+                    <ul>
+                        <li v-for="answer in answers" v-if="answer.questId == question.id">{{ answer.answerText }}
+                            <button type="button" id="editBtn" class="btn btn border" data-toggle="modal" data-target="#updateModal"
+                                v-on:click="showAnswer(answer.id)">Edit answer</button>
+                        </li>
+                    </ul>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#addModal"
+                        v-on:click="showProductInUpdateForm(question.id)">Add answer</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="addModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">add answer</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formUpdate">
+                            <div class="form-group">
+                                
+                                <input type="hidden" class="form-control" name="addId" id="addId" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="Description">Answer</label>
+                                <input type="text" class="form-control" name="addQuestionText"
+                                    id="addQuestionText">
+                            </div>
+                            <div class="form-group">
+                                <input type="button" class="btn btn-primary float-right" value="Save changes"
+                                    v-on:click="answerQuestion">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="updateModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formAdd">
+                            <div class="form-group">
+                                <label for="id">id</label>
+                                <input type="text" class="form-control" name="updateId" id="updateId" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="Description">question</label>
+                                <input type="text" class="form-control" name="updateAnswerText"
+                                    id="updateAnswerText">
+                            </div>
+                            <div class="form-group">
+                                <input type="button" class="btn btn-primary float-right" value="Save changes"
+                                    v-on:click="updateAnswer">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+    <script>
+        const vm = new Vue({
+            el: "#app",
+            data: {
+                questions: [],
+                answers: []
+            },
+            methods: {
+                showProductInUpdateForm(id) {
+                    $.ajax({
+                        url: '/api/question/' + id,
+                        type: 'GET',
+                        success: (question) => {
+                            $('#addId').val(question.id);
+                        }
+                    });
+                    $('#addModal').modal('show');
+                },
+                showAnswer(id){
+                    $.ajax({
+                        url: '/api/answer/' + id,
+                        type: 'GET',
+                        success: (answer) => {
+                            $('#updateId').val(answer.id);
+                            $('#updateAnswerText').val(answer.answerText);
+                        }
+                    });
+                    $('#addModal').modal('show');
+                },
+                updateAnswer() {
+                    var question = {
+                        questionText: $('#updateModal #updateQuestionText').val(),
+                        id: $('#updateModal #updateId').val()
+                    }
+                    $.ajax({
+                        url: '/api/answer',
+                        type: 'PUT',
+                        data: question,
+                        success: () => {
+                            var self = this;
+                            $.getJSON("/api/questions", function (jsondata) {
+                                self.questions = jsondata;
+                            });
+
+                        },
+                    });
+                    $('#updateModal').modal('hide');
+                },
+                answerQuestion() {
+                    var answer = {
+                        answerText: $('#addModal #addQuestionText').val(),
+                        questId: $('#addModal #addId').val()
+                    }
+                    $.ajax({
+                        url: '/api/answer',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(answer),
+                        success: () => {
+                            var self = this;
+                            $.getJSON("/api/questions", function (jsondata) {
+                                self.questions = jsondata;
+                            });
+                        }
+                    });
+                    $('#addModal').modal('hide');
+                },
+            },
+            mounted() {
+                var self = this;
+                $.getJSON("/api/questions", function (jsondata) {
+                    console.log(JSON.stringify(jsondata))
+                    self.questions = jsondata;
+                });
+                var hej = this;
+                $.getJSON("/api/answers", function (jsondata) {
+                    hej.answers = jsondata;
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

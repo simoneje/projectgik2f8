@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+</head>
+
+<body>
+    <h1>Hello, world!</h1>
+    <div class="container" id="app">
+        <nav class="navbar navbar-expand-lg navbar-light bg-danger">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Navbar</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                        <a class="nav-link active" aria-current="page" href="#">user</a>
+                        <a class="nav-link" href="#">logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#addModal"
+            style="margin-left: 25rem;">Login User</button>
+        <div class="modal fade" id="addModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Login</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formAdd">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="text" class="form-control" name="logEmail" id="logEmail">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" name="logPassword" id="logPassword">
+                            </div>
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-danger float-right"
+                                        data-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary float-right" value="Login"
+                                        v-on:click="loginUser">Login</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        const vm = new Vue({
+            el: "#app",
+            data: {
+                questions: []
+            },
+            methods: {
+                loginUser() {
+					var user = {
+						email: $('#logEmail').val(),
+						password: $('#logPassword').val()
+					}
+					$.ajax({
+						url: '/api/userLogin',
+						type: 'POST',
+						contentType: 'application/json',
+                        data: JSON.stringify(user),
+						success: function (jsondata) {
+							var self = this;
+							// $.getJSON("/api/userLogin", function (jsondata) {
+                            //     self.userLogin = jsondata;
+                            //     console.log(jsondata)
+                            console.log(jsondata)
+                            usertype = jsondata.accountType
+                            window.sessionStorage.setItem('accountType', usertype);
+                            if(usertype === 0)
+                            {
+                                window.location.href = 'http://localhost:3000/user.html'
+                            }
+                            else if(usertype === 1)
+                            {
+                                window.location.href = 'http://localhost:3000/contributor.html'
+                            }
+                            else if(usertype === 2)
+                            {
+                                window.location.href = 'http://localhost:3000/admin.html'
+                            }
+							// });
+							$('#updateModal').modal('hide');
+						},
+					});
+				},
+                addQuestion() {
+                    var question = {
+                        name: $('#addTitle').val(),
+                        category: $('#addCategory').val(),
+                        questionText: $('#addQuestionText').val()
+                    }
+                    $.ajax({
+                        url: '/api/question',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(question),
+                        success: () => {
+                            var self = this;
+                            $.getJSON("/api/questions", function (jsondata) {
+                                self.questions = jsondata;
+                                $('#addModal').modal('hide');
+                            });
+                        }
+                    });
+                },
+            },
+            mounted() {
+                var self = this;
+                $.getJSON("/api/questions", function (jsondata) {
+                    console.log(JSON.stringify(jsondata))
+                    self.questions = jsondata;
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
