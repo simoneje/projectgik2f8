@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>User</title>
 </head>
@@ -23,37 +23,32 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
+                        <a class="nav-link active" style="font-weight: bold;" aria-current="page" href="listofusers.html">All Users</a>
+                        <a class="nav-link active" style="font-weight: bold;" v-on:click="logout" href="index.html">Sign out</a>
 
-                        <a class="nav-link active" style="font-weight: bold;" v-on:click="logout" href="index.html">Sign
-                            out</a>
+
                     </div>
                 </div>
             </div>
-            <form class="d-flex" style="font-weight: bold;">
-                Filter
-                <select id="anythingSearch" style="margin-right: 2rem; margin-left:6px;">
-                    <option value="">All categorys</option>
-                    <option>Music</option>
-                    <option>Games</option>
-                    <option>Food</option>
-                    <option>Training</option>
-                    <option>Other</option>
-                </select>
-            </form>
-
         </nav>
-        <div class="row justify-content-center" id="searchCard">
-            <div style="font-weight: 500;">
-                <div class="card" style="margin: 2rem;" v-for="question in questions" v-bind:key="question.id">
-                    <div class="card-body">
+        <div style="display: block; font-weight: 500;" id="listviewQ">
+            <ul class="list-group" v-for="question in questions" v-bind:key="question.id">
+                <button class="collapsible" type="button" data-toggle="collapse" v-bind:data-target="`#collapseExample${question.id}`" aria-expanded="false" v-bind:aria-controls="`#collapseExample${question.id}`">
+                    Title: {{ question.title }}    
+                        <div class="answersBluePill" style="white-space: nowrap; float: right;">        
+                            <span class="badge badge-primary badge-pill" v-bind:id="`bluePill${question.id}`"
+                                value="bluePillAnswers">           
+                            </span>
+                        </div>   
+                </button>
+                <div class="collapse" v-bind:id="`collapseExample${question.id}`">
+                    <div class="card-body" style="border: solid;">
                         <p style="font-weight: bold;" class="card-text">Author: {{ question.author }}</p>
                         <h5 class="card-title">Title: {{ question.title }}</h5>
-                        <p class="card-title">Category: {{ question.category }}</p>
+                        <p class="card-text">Category: {{ question.category }}</p>
                         <p style="font-size: larger;" class="card-text">{{ question.questionText }}</p>
-                        <small style="font-size: .875em; font-weight: normal;" class="card-text">Posted: {{
-                            question.date }}</small>
+                        <small style="font-size: smaller;" class="card-text">Posted: {{ question.date }}</small>
                         <ul>
-                            
                             <li style="border: 1px solid black; padding: 0.5rem; margin: 0.5rem;" v-for="a in answers"
                                 v-if="a.questId == question.id">
                                 <p style="color: blue; font-weight: bold; float: right;" v-if="a.rating == -1">-1</p>
@@ -65,39 +60,60 @@
 
                             </li>
                         </ul>
-                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#addModal"
-                            v-on:click="showProductInUpdateForm(question.id)">Add answer</button>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#updateQModal"
+                            v-on:click="showQuestionInUpdateForm(question.id)">Manage question</button>
                     </div>
                 </div>
-            </div>
+
+
+            </ul>
         </div>
-        <div class="modal fade" id="addModal">
+        
+        <div class="modal fade" id="updateQModal">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">add answer</h5>
+                        <h5 class="modal-title">Update</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form id="formUpdate">
+                        <form id="formQUpdate">
                             <div class="form-group">
-                                <input type="hidden" class="form-control" name="addId" id="addId" readonly>
+                                <label for="id">id</label>
+                                <input type="text" class="form-control" name="updateQId" id="updateQId" readonly>
                             </div>
                             <div class="form-group">
-                                <label for="questionText">Answer</label>
-                                <textarea class="form-control" id="addQuestionText" rows="5"></textarea>
+                                <label for="title">title</label>
+                                <input type="text" class="form-control" name="updateTitle" id="updateTitle">
+                            </div>
+                            <div class="form-group">
+                                <label for="addCategory">Choose category</label>
+                                <select class="form-control" id="updateCategory">
+                                    <option>Music</option>
+                                    <option>Games</option>
+                                    <option>Food</option>
+                                    <option>Training</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="questionText">Question</label>
+                                <textarea class="form-control" id="updateQuestionText" rows="5"></textarea>
                             </div>
                             <div class="form-group">
                                 <input type="button" class="btn btn-primary float-right" value="Save changes"
-                                    v-on:click="answerQuestion">
+                                    v-on:click="updateQuestion">
+                                <button type="button" class="btn btn-danger float-right"
+                                    v-on:click="deleteQuestion">Delete</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="modal fade" id="updateModal">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -132,23 +148,70 @@
             </div>
         </div>
     </div>
-
+    <style>
+        .collapsible {
+          background-color: rgb(177, 177, 177);
+          color: black;
+          cursor: pointer;
+          padding: 18px;
+          width: 100%;
+          border: none;
+          text-align: left;
+          outline: none;
+          margin: 2px;
+          border-radius: 10px;
+          font-size: 15px;
+          font-weight: 500;
+        }
+        
+        </style>
     <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-
+    
     <script>
 
         const vm = new Vue({
             el: "#app",
             data: {
+                listOfQnA: [],
                 questions: [],
-                answers: [],
-                thisUser: window.sessionStorage.getItem('Username')
+                answers: []
             },
             methods: {
-                showProductInUpdateForm(id) {
+                makeListView() {
+                    document.getElementById('listviewQ').style.cssText = 'display: block;';
+                    document.getElementById('cardviewQ').style.cssText = 'display: none;';
+                },
+                makeQList() {
+
+                    $.ajax({
+                        url: '/api/answers/',
+                        type: 'GET',
+                        success: (answer) => {
+                            hej = answer
+                            console.log(answer)
+                            var cntAnswers = [];
+                            var count = 0
+                            var tja
+                            var content
+                            for (let [key, value] of Object.entries(answer)) {
+                                cntAnswers.push(value['questId'])
+
+                                tja = document.getElementById("bluePill" + value['questId']);
+                                content = tja.textContent
+                                if (content === '') {
+                                    content = 0
+                                }
+                                content = parseInt(content) + 1;
+                                tja.textContent = content
+                            }
+                            
+                        }
+                    });
+                },
+                showAnswerInUpdateForm(id) {
                     $.ajax({
                         url: '/api/question/' + id,
                         type: 'GET',
@@ -158,6 +221,19 @@
                     });
                     $('#addModal').modal('show');
                 },
+                showQuestionInUpdateForm(id) {
+                    $.ajax({
+                        url: '/api/question/' + id,
+                        type: 'GET',
+                        success: (question) => {
+                            $('#updateQId').val(question.id);
+                            $('#updateTitle').val(question.title);
+                            $('#updateCategory').val(question.category);
+                            $('#updateQuestionText').val(question.questionText);
+                        }
+                    });
+                    $('#updateQModal').modal('show');
+                },
                 showAnswer(id) {
                     $.ajax({
                         url: '/api/answerId/' + id,
@@ -166,11 +242,9 @@
                             $('#updateId').val(answer.id);
                             $('#updateQuestId').val(answer.questId);
                             $('#updateAnswerText').val(answer.answerText);
-
-
                         }
                     });
-                    $('#updateModal').modal('show');
+                    // $('#updateQModal').modal('show');
                 },
                 updateAnswer() {
                     var answer = {
@@ -204,8 +278,8 @@
                         type: 'DELETE',
                         success: () => {
                             var self = this;
-                            $.getJSON("/api/answers", function (jsondata) {
-                                self.answer = jsondata;
+                            $.getJSON("/api/questions", function (jsondata) {
+                                self.questions = jsondata;
                             });
                             $.getJSON("/api/answers", function (jsondata) {
                                 self.answers = jsondata;
@@ -214,17 +288,38 @@
                     });
                     $('#updateModal').modal('hide');
                 },
-                answerQuestion() {
-                    var answer = {
-                        answerText: $('#addModal #addQuestionText').val(),
-                        questId: $('#addModal #addId').val(),
-                        author: window.sessionStorage.getItem('Username')
+
+                updateQuestion() {
+                    var question = {
+                        title: $('#updateQModal #updateTitle').val(),
+                        category: $('#updateQModal #updateCategory').val(),
+                        questionText: $('#updateQModal #updateQuestionText').val(),
+                        id: $('#updateQModal #updateQId').val()
                     }
                     $.ajax({
-                        url: '/api/answer',
-                        type: 'POST',
-                        contentType: 'application/json',
-                        data: JSON.stringify(answer),
+                        url: '/api/question',
+                        type: 'PUT',
+                        data: question,
+                        success: () => {
+                            var self = this;
+                            $.getJSON("/api/questions", function (jsondata) {
+                                self.questions = jsondata;
+                            });
+                            $.getJSON("/api/answers", function (jsondata) {
+                                self.answers = jsondata;
+                            });
+
+                        },
+                    });
+                    $('#updateQModal').modal('hide');
+                },
+                deleteQuestion() {
+                    var question = {
+                        id: $('#updateQModal #updateQId').val()
+                    }
+                    $.ajax({
+                        url: '/api/question/' + question.id,
+                        type: 'DELETE',
                         success: () => {
                             var self = this;
                             $.getJSON("/api/questions", function (jsondata) {
@@ -235,9 +330,29 @@
                             });
                         }
                     });
-                    $('#addModal').modal('hide');
-
+                    $('#updateQModal').modal('hide');
                 },
+                // addQuestion() {
+                //     var question = {
+                //         title: $('#addTitle').val(),
+                //         category: $('#addCategory').val(),
+                //         questionText: $('#addQuestionText').val(),
+                //         author: window.sessionStorage.getItem('Username')
+                //     }
+                //     $.ajax({
+                //         url: '/api/question',
+                //         type: 'POST',
+                //         contentType: 'application/json',
+                //         data: JSON.stringify(question),
+                //         success: () => {
+                //             var self = this;
+                //             $.getJSON("/api/questions", function (jsondata) {
+                //                 self.questions = jsondata;
+                //             });
+                //         }
+                //     });
+                //     $('#addModal').modal('hide');
+                // },
                 logout() {
                     window.sessionStorage.removeItem('Username')
                     window.sessionStorage.removeItem('accountType')
@@ -248,22 +363,20 @@
                 $.getJSON("/api/questions", function (jsondata) {
                     console.log(JSON.stringify(jsondata))
                     self.questions = jsondata;
-                });
+
+
+                })
+
                 var hej = this;
                 $.getJSON("/api/answers", function (jsondata) {
                     hej.answers = jsondata;
+
                 });
 
-            },
-
+            }
         });
         $(document).ready(function () {
-            $("#anythingSearch").on("change", function () {
-                var value = $(this).val().toLowerCase();
-                $(".card").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-                });
-            });
+            vm.makeQList()
         });
     </script>
 </body>

@@ -1,5 +1,7 @@
 const routes = require('express').Router();
 const dbservice = require('./database');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const multer =require('multer');
 const upload = multer({
@@ -29,7 +31,7 @@ routes.get('/questions/', async (req, res) => {
         res.send(questions);
     }
     catch (error) {
-        throw new error('något gick fel med hämtning av frågor')
+        console.log('något gick fel med hämtning av frågor')
     }
 });
 routes.get('/answers/', async (req, res) => {
@@ -49,7 +51,7 @@ routes.get('/user/:id', async (req, res) => {
         res.send(user);
     }
     catch (error) {
-        throw new error('något gick fel med hämtning av anändare')
+        console.log('något gick fel med hämtning av anändare')
     }
 });
 routes.get('/question/:id', async (req, res) => {
@@ -59,7 +61,7 @@ routes.get('/question/:id', async (req, res) => {
         res.send(question);
     }
     catch (error) {
-        throw new error('något gick fel med hämtning av fråga')
+        console.log('något gick fel med hämtning av fråga')
     }
 });
 routes.get('/answer/:id', async (req, res) => {
@@ -69,10 +71,19 @@ routes.get('/answer/:id', async (req, res) => {
         res.send(answer);
     }
     catch (error) {
-        throw new error('något gick fel med hämtning av svar')
+        console.log('något gick fel med hämtning av svar')
     }
 });
-
+routes.get('/answerId/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+        const answer = await dbservice.getAnswerId(id);
+        res.send(answer);
+    }
+    catch (error) {
+        console.log('något gick fel med hämtning av svar')
+    }
+});
 routes.post('/user/:id', async (req, res) => {
     if(req.body.email == ("") || req.body.firstname == ("") || req.body.lastname == ("") || req.body.password == (""))
     {
@@ -84,11 +95,23 @@ routes.post('/user/:id', async (req, res) => {
             const res = await dbservice.addProduct(req.body);
         }
         catch (error) {
-            throw new error('något gick fel med tillägning av användare')
+            console.log('något gick fel med tillägning av användare')
         }
         res.json({ status: 'user has been added' });
         
     }
+});
+routes.put('/user', async (req, res) => {
+    
+    try {
+        const res = await dbservice.updateUser(req.body);
+    }
+    catch (error) {
+        console.log(error)
+    }
+    res.json({ status: 'user has been updated' });
+        
+    
 });
 routes.post('/question', async (req, res) => {
     if(req.body.title == ("") || req.body.questionText == ("") || req.body.category == (""))
@@ -117,7 +140,7 @@ routes.post('/answer', async (req, res) => {
             const res = await dbservice.addanswer(req.body);
         }
         catch (error) {
-            throw new error('något gick fel med tillägning av svar')
+            console.log('något gick fel med tillägning av svar')
         }
         res.json({ status: 'answer has been added' });
     }
@@ -141,10 +164,28 @@ routes.delete('/question/:id', async (req, res) => {
             }
         }
         catch(error) {
-            throw new error('gick inte att ta bort question i routes');
+            console.log('gick inte att ta bort question i routes');
         }
     }
-})
+});
+routes.delete('/user/:id', async (req, res) => {
+    
+    try {
+        const proddel = await dbservice.removeUser(req.params);
+        if(proddel == undefined)
+        {
+            res.send('No such user has been found')
+        }
+        else
+        {
+            res.send('User has been removed');
+        }
+    }
+    catch(error) {
+        console.log(error);
+    }
+
+});
 routes.delete('/answer/:id', async (req, res) => {
     if(isNaN(req.params.id))
     {
@@ -164,7 +205,7 @@ routes.delete('/answer/:id', async (req, res) => {
             }
         }
         catch(error) {
-            throw new error('gick inte att ta bort svaret i routes');
+            console.log('gick inte att ta bort svaret i routes');
         }
     }
 })
@@ -188,7 +229,7 @@ routes.put('/question', async (req, res) => {
             }
             catch(error)
             { 
-                throw new error('det gick inte att updatera frågan i routes');
+                console.log('det gick inte att updatera frågan i routes');
             }
         }
     }
@@ -213,7 +254,7 @@ routes.put('/answer', async (req, res) => {
             }
             catch(error)
             { 
-                throw new error('det gick inte att updatera svaret i routes');
+                console.log('det gick inte att updatera svaret i routes');
             }
         }
     }
@@ -236,6 +277,25 @@ routes.post('/userLogin', async (req, res) =>{
         console.log('det gick inte att logga in i routes')
     }
 });
+routes.post('/adduser', async (req, res) => {
+    try {
+        if (req.body.email == ("") || req.body.firstname == ("") || req.body.lastname == ("") || req.body.password == (""))
+        {
+            res.send(' All fields must contain information. ');
+            console.log(' All fields must contain information. ');
+        }
+        else {
+            await dbservice.addUser(req.body);
+            res.json({status: "ok"});        
+        }       
+    }
+    catch(error)
+    {
+        res.send('Error registering new user');
+        console.log(error);
+    }
+    
+});
 // routes.post('/contibruterLogin', async (req, res) =>{
 //     try
 //     {
@@ -251,7 +311,7 @@ routes.post('/userLogin', async (req, res) =>{
 //     }
 //     catch(error)
 //     {
-//         throw new error('det gick inte att logga in i routes')
+//         console.log('det gick inte att logga in i routes')
 //     }
 // });
 // routes.post('/adminLogin', async (req, res) =>{
@@ -269,7 +329,7 @@ routes.post('/userLogin', async (req, res) =>{
 //     }
 //     catch(error)
 //     {
-//         throw new error('det gick inte att logga in i routes')
+//         console.log('det gick inte att logga in i routes')
 //     }
 // });
 routes.post('/image/:id', upload.single('file'), async (req, res) => {
@@ -291,7 +351,7 @@ routes.post('/image/:id', upload.single('file'), async (req, res) => {
     catch (error) {
         await fs.unlink(file.path);
         res.status(400).json(error);
-        throw new error('det gick fel med bilden i routes')
+        console.log('det gick fel med bilden i routes')
     }
 });
 module.exports = routes;

@@ -15,7 +15,7 @@
     <div class="container" id="app">
         <nav class="navbar navbar-expand-lg navbar-light bg-danger">
             <div class="container-fluid">
-                <img src="qna (2).png">
+                <a class="navbar-brand" href="#">Navbar</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
                     aria-label="Toggle navigation">
@@ -23,87 +23,68 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
-                        <a class="nav-link active" style="font-weight: bold;" v-on:click="myQuestions" id="myQs"
-                            href="#">My Questions</a>
-
-                        <a class="nav-link active" style="display: none; font-weight: bold;" id="resetPage"
-                            aria-current="page" href="user.html">All Questions</a>
-                        <a type="button" class="nav-link active" style="font-weight: bold;" data-toggle="modal"
-                            data-target="#addModal">Add Question</a>
-                        <a class="nav-link active" style="font-weight: bold;" v-on:click="logout" href="index.html">Sign
-                            out</a>
-
+                        <a class="nav-link active" aria-current="page" href="#">user</a>
+                        <a class="nav-link" v-on:click="logout" href="index.html">logout</a>
                     </div>
                 </div>
             </div>
         </nav>
 
-        <div style="font-weight: 500;">
-            <div class="card" style="margin: 2rem;" v-for="question in questions" v-bind:key="question.id">
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#addModal"
+            style="margin-left: 25rem;">Add question</button>
+        <input class="form-control" id="anythingSearch" type="search" placeholder="Type something to search list items"
+            aria-label="search">
+
+        <div class="card">
+            <div class="card" v-for="question in questions" v-bind:key="question.id">
                 <div class="card-body">
-                    <p style="font-weight: bold;" class="card-text">Author: {{ question.author }}</p>
-                    <h5 class="card-title">Title: {{ question.title }}</h5>
-                    <p class="card-text">Category: {{ question.category }}</p>
-                    <p style="font-size: larger;" class="card-text">{{ question.questionText }}</p>
-                    <small style="font-size: .875em; font-weight: normal;" class="card-text">Posted: {{ question.date
-                        }}</small>
+                    <h5 class="card-title">{{ question.title }}</h5>
+                    <p class="card-text">{{ question.category }}</p>
+                    <p class="card-text"> {{ question.questionText }}</p>
                     <ul>
-                        <li style="border: 1px solid black; padding: 0.5rem; margin: 0.5rem;" v-for="a in answers"
-                            v-if="a.questId == question.id">
-                            <p style="color: blue; font-weight: bold; float: right;" v-if="a.rating == -1">-1</p>
-                            <p style="color: red; font-weight: bold; float: right;" v-if="a.rating == 1">+1</p>
-                            <p style="font-weight: normal; float: right;" v-if="a.rating === null">no rating yet</p>
-                            <p>User {{ a.author }} says:</p>
-                            <p style="margin: 0; ">{{ a.answerText }}</p>
-                            <small style="font-size: .875em; font-weight: normal;">Posted: {{ a.date }}</small>
-                            <div v-if="thisUser === question.author">
-                                <form id="formUpvote">
-                                    <div class="form-group">
-                                        <input type="hidden" class="form-control" name="upvoteId" v-bind:value="a.id"
-                                            id="upvoteId" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="hidden" class="form-control" v-bind:value="a.questId"
-                                            name="upvoteQuestId" id="upvoteQuestId" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="hidden" class="form-control" v-bind:value="a.answerText"
-                                            name="upvoteAnswerText" id="upvoteAnswerText">
-                                    </div>
-                                    <div><i class="bi bi-caret-up-fill"></i>
-                                        <input type="radio" id="one" value="1" v-model="a.rating">
-                                        <label for="one">Upvote</label>
-
-                                        <input type="radio" id="two" value="-1" v-model="a.rating">
-                                        <label for="two">Downvote</label>
-                                        <input type="hidden" v-bind:value="a.upvote" id="upvoteUpvote"
-                                            name="upvoteUpvote">
-
-
-                                    </div>
-                                    <button type="button" class="btn btn-danger float-right"
-                                        v-on:click="updateUpvote(a.id, a.questId, a.answerText, a.rating)">vote</button>
-                                </form>
-                            </div>
-                        </li>
-                    </ul>
+                        <li v-for="answer in answers" v-if="answer.questId == question.id">{{answer.answerText}}
+                            <form id="formUpvote">
+                                <div class="form-group">
+                                    <input class="form-control" name="upvoteId" v-bind:value="answer.id" id="upvoteId" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" class="form-control" v-bind:value="answer.questId" name="upvoteQuestId" id="upvoteQuestId"
+                                        readonly>
+                                </div>
+                                <div class="form-group">
+                                    <input type="hidden" class="form-control" v-bind:value="answer.answerText" name="upvoteAnswerText" id="upvoteAnswerText">
+                                </div>
+                                <div>
+                                    <input type="radio" id="one" value="1" v-model="answer.upvote">
+                                    <label for="one">Upvote</label>
+                                    <input type="radio" id="two" value="-1" v-model="answer.upvote">
+                                    <label for="two">Downvote</label>
+                                    <input type="hidden" v-bind:value="answer.upvote" id="upvoteUpvote" name="upvoteUpvote">
+                                    <p v-if="answer.upvote == -1">downvoted</p>
+                                    <p v-if="answer.upvote == 1">Uppvoted</p>
+                                </div>
+                                <button type="button" class="btn btn-danger float-right"
+                                    v-on:click="updateAnswer(answer.id, answer.questId, answer.answerText)">vote</button>
+                            </form>
+                            </li>
+                    </ul>                      
                     <!-- https://vuejs.org/v2/guide/events.html för uppvote och  downvote -->
-                    <div v-if="thisUser === question.author">
-                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#updateModal"
-                            v-on:click="showProductInUpdateForm(question.id)">Manage question</button>
-                    </div>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#updateModal"
+                        v-on:click="showProductInUpdateForm(question.id)">Manage question</button>
                 </div>
             </div>
         </div>
+
         <div class="modal fade" id="addModal">
             <div class="modal-dialog">s
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Question</h5>
+                        <h5 class="modal-title">Add Product</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
+
                     <div class="modal-body">
                         <form id="formAdd">
                             <div class="form-group">
@@ -151,7 +132,7 @@
                         <form id="formUpdate">
                             <div class="form-group">
                                 <label for="id">id</label>
-                                <input type="text" class="form-control" name="updateId" id="updateId" readonly>
+                                <input type="text" class="form-control" name="updateId" id="answerId" readonly>
                             </div>
                             <div class="form-group">
                                 <label for="title">title</label>
@@ -183,10 +164,8 @@
             </div>
         </div>
     </div>
+    
 
-    <div class="container" id="test">
-
-    </div>
     <script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
@@ -198,14 +177,41 @@
             data: {
                 questions: [],
                 answers: [],
-                thisUser: window.sessionStorage.getItem('Username')
+                selected: '',
+                counter: '0',
+                
             },
             methods: {
-                updateUpvote(Id, Questid, Answertext, Rating) {
+                showProductInUpdateForm(id) {
+                    $.ajax({
+                        url: '/api/question/' + id,
+                        type: 'GET',
+                        success: (question) => {
+                            $('#updateId').val(question.id);
+                            $('#updateTitle').val(question.title);
+                            $('#updateCategory').val(question.category);
+                            $('#updateQuestionText').val(question.questionText);
+                        }
+                    });
+                    $('#updateModal').modal('show');
+                },
+                showAnswer(id) {
+                    $.ajax({
+                        url: '/api/answerId/' + id,
+                        type: 'GET',
+                        success: (answer) => {
+                            $('#upvoteId').val(answer.id);
+                            $('#upvoteQuestId').val(answer.questId);
+                            $('#upvoteUpvote').val(answer.upvote);
+                            $('#upvoteAnswerText').val(answer.answerText);
+                        }
+                    });
+                },
+                updateAnswer(Id, questid, answertext) {
                     var answer = {
-                        answerText: Answertext,
-                        questId: Questid,
-                        rating: Rating,
+                        answerText: answertext,
+                        questId: questid,
+                        upvote: $('#upvoteUpvote').val(),
                         id: Id
                     }
                     $.ajax({
@@ -222,22 +228,9 @@
                             $.getJSON("/api/answers", function (jsondata) {
                                 hej.answers = jsondata;
                             });
+
                         },
                     });
-                },
-
-                showProductInUpdateForm(id) {
-                    $.ajax({
-                        url: '/api/question/' + id,
-                        type: 'GET',
-                        success: (question) => {
-                            $('#updateId').val(question.id);
-                            $('#updateTitle').val(question.title);
-                            $('#updateCategory').val(question.category);
-                            $('#updateQuestionText').val(question.questionText);
-                        }
-                    });
-                    $('#updateModal').modal('show');
                 },
                 updateQuestion() {
                     var question = {
@@ -276,12 +269,14 @@
                     });
                     $('#updateModal').modal('hide');
                 },
+                logout() {
+                    window.sessionStorage.removeItem('accountType + username')
+                },
                 addQuestion() {
                     var question = {
                         title: $('#addTitle').val(),
                         category: $('#addCategory').val(),
-                        questionText: $('#addQuestionText').val(),
-                        author: window.sessionStorage.getItem('Username')
+                        questionText: $('#addQuestionText').val()
                     }
                     $.ajax({
                         url: '/api/question',
@@ -297,24 +292,9 @@
                     });
                     $('#addModal').modal('hide');
                 },
-                logout() {
-                    window.sessionStorage.removeItem('Username')
-                    window.sessionStorage.removeItem('accountType')
-                },
-                myQuestions() {
-                    // FIlter anything
-                    // Källa tagen från https://mdbootstrap.com/docs/b4/jquery/forms/search/
-                    user = window.sessionStorage.getItem('Username')
-                    $(document).ready(function () {
-                        $(".card").filter(function () {
-                            $(this).toggle($(this).text().toLowerCase().indexOf(user) > -1)
-                            document.getElementById('resetPage').style.display = "block";
-                            document.getElementById("myQs").style.display = "none";
-                        });
-
-                    });
-                },
-
+                // logout() {
+                //     this.$session.remove('accountType + username')
+                // },
             },
             mounted() {
                 var self = this;
@@ -326,9 +306,18 @@
                 $.getJSON("/api/answers", function (jsondata) {
                     hej.answers = jsondata;
                 });
-            },
-
+            }
         });
+        $(document).ready(function () {
+
+            $("#anythingSearch").on("keyup", function () {
+                var value = $('li:contains("Music")').val().toLowerCase();
+                $(".card").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+
     </script>
 </body>
 
