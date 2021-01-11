@@ -73,19 +73,19 @@
                         <form id="formReg">
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="text" class="form-control" name="regEmail" id="regEmail">
+                                <input type="text" class="form-control" name="regEmail" id="regEmail" required="true">
                             </div>
                             <div class="form-group">
                                 <label for="password">Password</label>
-                                <input type="password" class="form-control" name="regPassword" id="regPassword">
+                                <input type="password" class="form-control" name="regPassword" id="regPassword" required>
                             </div>
                             <div class="form-group">
                                 <label for="firstname">Firstname</label>
-                                <input type="text" class="form-control" name="regFName" id="regFName">
+                                <input type="text" class="form-control" name="regFName" id="regFName" required>
                             </div>
                             <div class="form-group">
                                 <label for="lastname">Lastname</label>
-                                <input type="text" class="form-control" name="regLName" id="regLName">
+                                <input type="text" class="form-control" name="regLName" id="regLName" required>
                             </div>
                             <div class="form-group">
                                 <div class="form-group">
@@ -172,9 +172,15 @@
                         data: JSON.stringify(user),
                         success: function (jsondata) {
                             var self = this;
+                            if(jsondata == ' All fields must contain information. '){
+                                alert('You must fill all fields to register a new user!')
 
-                            $('#regModal').modal('hide');
-                            alert('You have been registered!');
+                            }
+                            else{
+                                $('#regModal').modal('hide');
+                                alert('You have been registered!');
+                            }
+                            
                         },
                     });
                 },

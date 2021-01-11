@@ -25,26 +25,36 @@
                     <div class="navbar-nav">
                         <a class="nav-link active" style="font-weight: bold;" v-on:click="myQuestions" id="myQs"
                             href="#">My Questions</a>
+                            
+                        <a class="nav-link active" style="font-weight: bold;" href="faq.html" id="myFaq">FAQ</a>
 
                         <a class="nav-link active" style="display: none; font-weight: bold;" id="resetPage"
                             aria-current="page" href="user.html">All Questions</a>
+                            <a class="nav-link active" style="display: none; font-weight: bold;" id="adminDirect"
+                            aria-current="page" href="contributor.html">Contributor</a>
+                            <a class="nav-link active" style="display: none; font-weight: bold;" id="adminDirect2"
+                            aria-current="page" href="admin.html">Admin</a>
                         <a type="button" class="nav-link active" style="font-weight: bold;" data-toggle="modal"
                             data-target="#addModal">Add Question</a>
-                        <a class="nav-link active" style="font-weight: bold;" v-on:click="logout" href="index.html">Sign
-                            out</a>
+                        
 
                     </div>
                 </div>
+                <a class="nav-link active" style="font-weight: bold; white-space: nowrap; color:black;" v-on:click="logout" href="index.html">Sign
+                    out</a>
             </div>
         </nav>
 
         <div style="font-weight: 500;">
             <div class="card" style="margin: 2rem;" v-for="question in questions" v-bind:key="question.id">
                 <div class="card-body">
+                    <div style="float:right;" v-if="question.duplicate == 1">
+                        <p style="font-size: smaller;">Duplicate question</p>
+                    </div>
                     <p style="font-weight: bold;" class="card-text">Author: {{ question.author }}</p>
                     <h5 class="card-title">Title: {{ question.title }}</h5>
                     <p class="card-text">Category: {{ question.category }}</p>
-                    <p style="font-size: larger;" class="card-text">{{ question.questionText }}</p>
+                    <p style="font-size: normal;" class="card-text">{{ question.questionText }}</p>
                     <small style="font-size: .875em; font-weight: normal;" class="card-text">Posted: {{ question.date
                         }}</small>
                     <ul>
@@ -53,44 +63,37 @@
                             <p style="color: blue; font-weight: bold; float: right;" v-if="a.rating == -1">-1</p>
                             <p style="color: red; font-weight: bold; float: right;" v-if="a.rating == 1">+1</p>
                             <p style="font-weight: normal; float: right;" v-if="a.rating === null">no rating yet</p>
+                            
                             <p>User {{ a.author }} says:</p>
-                            <p style="margin: 0; ">{{ a.answerText }}</p>
-                            <small style="font-size: .875em; font-weight: normal;">Posted: {{ a.date }}</small>
                             <div v-if="thisUser === question.author">
                                 <form id="formUpvote">
-                                    <div class="form-group">
-                                        <input type="hidden" class="form-control" name="upvoteId" v-bind:value="a.id"
-                                            id="upvoteId" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="hidden" class="form-control" v-bind:value="a.questId"
-                                            name="upvoteQuestId" id="upvoteQuestId" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="hidden" class="form-control" v-bind:value="a.answerText"
-                                            name="upvoteAnswerText" id="upvoteAnswerText">
-                                    </div>
-                                    <div><i class="bi bi-caret-up-fill"></i>
-                                        <input type="radio" id="one" value="1" v-model="a.rating">
-                                        <label for="one">Upvote</label>
+                            <div style="float: right;">
+                                <i class="bi bi-caret-up-fill"></i>
+                                <input type="radio" id="one" value="1" v-model="a.rating">
+                                <label for="one">Upvote</label>
 
-                                        <input type="radio" id="two" value="-1" v-model="a.rating">
-                                        <label for="two">Downvote</label>
-                                        <input type="hidden" v-bind:value="a.upvote" id="upvoteUpvote"
-                                            name="upvoteUpvote">
-
-
-                                    </div>
-                                    <button type="button" class="btn btn-danger float-right"
-                                        v-on:click="updateUpvote(a.id, a.questId, a.answerText, a.rating)">vote</button>
-                                </form>
+                                <input type="radio" id="two" value="-1" v-model="a.rating">
+                                <label for="two">Downvote</label>
+                                <input type="hidden" v-bind:value="a.upvote" id="upvoteUpvote"
+                                    name="upvoteUpvote">
+                                <button type="button" style="padding: 3px;" class="btn btn-danger float-right"
+                                v-on:click="updateUpvote(a.id, a.questId, a.answerText, a.rating)">vote</button>
                             </div>
+                        </form>
+                    </div>
+                            <p style="margin: 0; ">{{ a.answerText }}</p>
+                            <small style="font-size: .875em; font-weight: normal;">Posted: {{ a.date }}</small>
+                            
+                                    
+                                    
+                                    
+                              
                         </li>
                     </ul>
                     <!-- https://vuejs.org/v2/guide/events.html för uppvote och  downvote -->
                     <div v-if="thisUser === question.author">
                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#updateModal"
-                            v-on:click="showProductInUpdateForm(question.id)">Manage question</button>
+                            v-on:click="showQuestionInUpdateForm(question.id)">Manage question</button>
                     </div>
                 </div>
             </div>
@@ -150,11 +153,13 @@
                     <div class="modal-body">
                         <form id="formUpdate">
                             <div class="form-group">
-                                <label for="id">id</label>
-                                <input type="text" class="form-control" name="updateId" id="updateId" readonly>
+                                <input type="hidden" class="form-control" name="updateId" id="updateId" readonly>
                             </div>
                             <div class="form-group">
-                                <label for="title">title</label>
+                                <input type="hidden" class="form-control" name="updateDuplicate" id="updateDuplicate" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="title">Title</label>
                                 <input type="text" class="form-control" name="updateTitle" id="updateTitle">
                             </div>
                             <div class="form-group">
@@ -201,6 +206,12 @@
                 thisUser: window.sessionStorage.getItem('Username')
             },
             methods: {
+                checkAccountType() {
+                    if (window.sessionStorage.getItem('accountType') == 2){
+                        document.getElementById('adminDirect').style.display = "block";
+                        document.getElementById('adminDirect2').style.display = "block";
+                    }
+                },
                 updateUpvote(Id, Questid, Answertext, Rating) {
                     var answer = {
                         answerText: Answertext,
@@ -226,7 +237,7 @@
                     });
                 },
 
-                showProductInUpdateForm(id) {
+                showQuestionInUpdateForm(id) {
                     $.ajax({
                         url: '/api/question/' + id,
                         type: 'GET',
@@ -235,6 +246,7 @@
                             $('#updateTitle').val(question.title);
                             $('#updateCategory').val(question.category);
                             $('#updateQuestionText').val(question.questionText);
+                            $('#updateDuplicate').val(question.duplicate);
                         }
                     });
                     $('#updateModal').modal('show');
@@ -244,7 +256,8 @@
                         title: $('#updateModal #updateTitle').val(),
                         category: $('#updateModal #updateCategory').val(),
                         questionText: $('#updateModal #updateQuestionText').val(),
-                        id: $('#updateModal #updateId').val()
+                        id: $('#updateModal #updateId').val(),
+                        duplicate: $('#updateModal #updateDuplicate').val(),
                     }
                     $.ajax({
                         url: '/api/question',
@@ -327,7 +340,11 @@
                     hej.answers = jsondata;
                 });
             },
+            
 
+        });
+        $(document).ready(function () {
+            vm.checkAccountType()
         });
     </script>
 </body>

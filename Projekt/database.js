@@ -165,17 +165,17 @@ const deleteanswer = async (id) => {
     }
 };
 
-const uppQuestion = async (data) =>{
+const upQuestion = async (data) =>{
     try {
         const dbCon = await dbPromise;
-        await dbCon.run('UPDATE question SET Title = (?), questionText=(?), category = (?) WHERE id = (?)', [data.title, data.questionText, data.category, data.id]);
+        await dbCon.run('UPDATE question SET Title = (?), questionText=(?), category = (?), duplicate = (?) WHERE id = (?)', [data.title, data.questionText, data.category, data.duplicate, data.id]);
     }
     catch (error) {
         console.log(error)
     }
 };
 
-const uppanswer = async (data) =>{
+const upAnswer = async (data) =>{
     try {
         const dbCon = await dbPromise;
         await dbCon.run('UPDATE answer SET answerText=(?), questId=(?), rating=(?) WHERE id=(?)', [data.answerText, data.questId, data.rating, data.id]);
@@ -287,8 +287,8 @@ module.exports = {
     deleteQuestion : deleteQuestion,
     deleteanswer : deleteanswer,
     removeUser : removeUser,
-    uppQuestion : uppQuestion,
-    uppanswer : uppanswer,
+    upQuestion : upQuestion,
+    upAnswer : upAnswer,
     loginUser : loginUser,
     
     // loginAdmin : loginAdmin,

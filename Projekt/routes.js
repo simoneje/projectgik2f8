@@ -224,7 +224,7 @@ routes.put('/question', async (req, res) => {
         {
             try
             {
-                const update = await dbservice.uppQuestion(req.body)
+                const update = await dbservice.upQuestion(req.body)
                 res.send(update)
             }
             catch(error)
@@ -249,7 +249,7 @@ routes.put('/answer', async (req, res) => {
         {
             try
             {
-                const update = await dbservice.uppanswer(req.body)
+                const update = await dbservice.upAnswer(req.body)
                 res.send(update)
             }
             catch(error)

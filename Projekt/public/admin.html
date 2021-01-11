@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>User</title>
+    <title>Admin</title>
 </head>
 
 <body>
@@ -24,11 +24,15 @@
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
                         <a class="nav-link active" style="font-weight: bold;" aria-current="page" href="listofusers.html">All Users</a>
-                        <a class="nav-link active" style="font-weight: bold;" v-on:click="logout" href="index.html">Sign out</a>
-
-
+                        
+                        <a class="nav-link active" style="font-weight: bold;" id="adminDirect"
+                            aria-current="page" href="user.html">User</a>
+                            <a class="nav-link active" style="font-weight: bold;" id="adminDirect2"
+                            aria-current="page" href="contributor.html">Contributor</a>
                     </div>
                 </div>
+                <a class="nav-link active" style="font-weight: bold; color: black; " v-on:click="logout" href="index.html">Sign
+                    out</a>
             </div>
         </nav>
         <div style="display: block; font-weight: 500;" id="listviewQ">
@@ -46,7 +50,7 @@
                         <p style="font-weight: bold;" class="card-text">Author: {{ question.author }}</p>
                         <h5 class="card-title">Title: {{ question.title }}</h5>
                         <p class="card-text">Category: {{ question.category }}</p>
-                        <p style="font-size: larger;" class="card-text">{{ question.questionText }}</p>
+                        <p style="font-size: normal;" class="card-text">{{ question.questionText }}</p>
                         <small style="font-size: smaller;" class="card-text">Posted: {{ question.date }}</small>
                         <ul>
                             <li style="border: 1px solid black; padding: 0.5rem; margin: 0.5rem;" v-for="a in answers"

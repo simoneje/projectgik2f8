@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 
-    <title>User</title>
+    <title>Contributor</title>
 </head>
 
 <body>
@@ -23,8 +23,12 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
-
-                        <a class="nav-link active" style="font-weight: bold;" v-on:click="logout" href="index.html">Sign
+                        <a class="nav-link active" style="display: none; font-weight: bold;" id="adminDirect"
+                            aria-current="page" href="user.html">User</a>
+                        <a class="nav-link active" style="display: none; font-weight: bold;" id="adminDirect2"
+                            aria-current="page" href="admin.html">Admin</a>
+                        <a class="nav-link active" style="font-weight: bold; white-space: nowrap;" v-on:click="logout"
+                            href="index.html">Sign
                             out</a>
                     </div>
                 </div>
@@ -48,14 +52,26 @@
                     <div class="card-body">
                         <p style="font-weight: bold;" class="card-text">Author: {{ question.author }}</p>
                         <h5 class="card-title">Title: {{ question.title }}</h5>
+                        <div style="float: right;">
+                            <input type="radio" id="one" value="1" v-model="question.duplicate">
+                            <label for="one">Duplicate</label>
+                            <br>
+                            <input type="radio" id="two" value="0" v-model="question.duplicate">
+                            <label for="two">Orignal</label>
+                            <br>
+                            <button type="button" class="btn btn-danger float-right"
+                                v-on:click="updateDuplicate(question.id, question.title, question.category, question.questionText, question.duplicate)">Mark
+                                as duplicate</button>
+                        </div>
                         <p class="card-title">Category: {{ question.category }}</p>
-                        <p style="font-size: larger;" class="card-text">{{ question.questionText }}</p>
+                        <p style="font-size: normal;" class="card-text">{{ question.questionText }}</p>
                         <small style="font-size: .875em; font-weight: normal;" class="card-text">Posted: {{
                             question.date }}</small>
-                        <ul>
-                            
-                            <li style="border: 1px solid black; padding: 0.5rem; margin: 0.5rem;" v-for="a in answers"
-                                v-if="a.questId == question.id">
+
+                        <ul >
+
+                            <li v-for="a in answers"
+                            v-if="a.questId == question.id" style="border: 1px solid black; padding: 0.5rem; margin: 0.5rem;">
                                 <p style="color: blue; font-weight: bold; float: right;" v-if="a.rating == -1">-1</p>
                                 <p style="color: red; font-weight: bold; float: right;" v-if="a.rating == 1">+1</p>
                                 <p style="font-weight: normal; float: right;" v-if="a.rating === null">no rating yet</p>
@@ -63,10 +79,13 @@
                                 <p style="margin: 0; ">{{ a.answerText }}</p>
                                 <small style="font-size: .875em; font-weight: normal;">Posted: {{ a.date }}</small>
 
+                                <button type="button" v-if="a.author == thisUser" id="editBtn" class="btn btn border" data-toggle="modal"
+                                    data-target="#updateModal" v-on:click="showAnswer(a.id)">Edit answer</button>
+
                             </li>
                         </ul>
                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#addModal"
-                            v-on:click="showProductInUpdateForm(question.id)">Add answer</button>
+                            v-on:click="showQuestionInUpdateForm(question.id)">Add answer</button>
                     </div>
                 </div>
             </div>
@@ -117,6 +136,10 @@
                                     readonly>
                             </div>
                             <div class="form-group">
+                                <input type="hidden" class="form-control" name="updateRating" id="updateRating"
+                                    readonly>
+                            </div>
+                            <div class="form-group">
                                 <label for="Answer">Answer</label>
                                 <textarea class="form-control" id="updateAnswerText" rows="5"></textarea>
                             </div>
@@ -148,7 +171,13 @@
                 thisUser: window.sessionStorage.getItem('Username')
             },
             methods: {
-                showProductInUpdateForm(id) {
+                checkAccountType() {
+                    if (window.sessionStorage.getItem('accountType') == 2) {
+                        document.getElementById('adminDirect').style.display = "block";
+                        document.getElementById('adminDirect2').style.display = "block";
+                    }
+                },
+                showQuestionInUpdateForm(id) {
                     $.ajax({
                         url: '/api/question/' + id,
                         type: 'GET',
@@ -166,6 +195,8 @@
                             $('#updateId').val(answer.id);
                             $('#updateQuestId').val(answer.questId);
                             $('#updateAnswerText').val(answer.answerText);
+                            $('#updateRating').val(answer.rating);
+
 
 
                         }
@@ -176,7 +207,8 @@
                     var answer = {
                         answerText: $('#updateModal #updateAnswerText').val(),
                         questId: $('#updateModal #updateQuestId').val(),
-                        id: $('#updateModal #updateId').val()
+                        id: $('#updateModal #updateId').val(),
+                        rating: $('#updateModal #updateRating').val()
                     }
                     $.ajax({
                         url: '/api/answer',
@@ -238,6 +270,28 @@
                     $('#addModal').modal('hide');
 
                 },
+                updateDuplicate(Id, Title, Category, QuestionText, Duplicate) {
+                    var question = {
+                        title: Title,
+                        category: Category,
+                        questionText: QuestionText,
+                        duplicate: Duplicate,
+                        id: Id
+                    }
+                    $.ajax({
+                        url: '/api/question',
+                        type: 'PUT',
+                        data: question,
+                        success: () => {
+                            var self = this;
+                            $.getJSON("/api/questions", function (jsondata) {
+                                self.questions = jsondata;
+                            });
+
+                        },
+                    });
+                    $('#updateModal').modal('hide');
+                },
                 logout() {
                     window.sessionStorage.removeItem('Username')
                     window.sessionStorage.removeItem('accountType')
@@ -264,6 +318,9 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
+        });
+        $(document).ready(function () {
+            vm.checkAccountType()
         });
     </script>
 </body>
