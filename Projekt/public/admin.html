@@ -238,18 +238,6 @@
                     });
                     $('#updateQModal').modal('show');
                 },
-                showAnswer(id) {
-                    $.ajax({
-                        url: '/api/answerId/' + id,
-                        type: 'GET',
-                        success: (answer) => {
-                            $('#updateId').val(answer.id);
-                            $('#updateQuestId').val(answer.questId);
-                            $('#updateAnswerText').val(answer.answerText);
-                        }
-                    });
-                    // $('#updateQModal').modal('show');
-                },
                 updateAnswer() {
                     var answer = {
                         answerText: $('#updateModal #updateAnswerText').val(),

@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 
 const saltRounds = 10;
 
+
+// source: https://stackoverflow.com/Questions/3605214/javascript-add-leading-zeroes-to-date
 function makeDate() {
     var date = new Date();
     var dateStr =
@@ -210,6 +212,8 @@ const loginUser = async (data) => {4
         console.log('något gick fel med inloggning i databasen')
     }
 }
+
+// source: https://www.npmjs.com/package/bcrypt
 const addUser = async (data) => {
     try {
         const dbCon = await dbPromise;
@@ -237,30 +241,8 @@ const removeUser = async (id) => {
         throw new Error('Couldnt talk to the database...');
     }
 };
-// const loginAdmin = async (data) => {4
-//     try
-//     {
-//         const dbcon = await dbPromise;
-//         const user = dbcon.get('SELECT email, firstname, lastname FROM admin WHERE email = (?) AND password = (?)', [data.email, data.password]);
-//         return user; 
-//     }
-//     catch(error)
-//     {
-//         console.log('något gick fel med inloggning i databasen')
-//     }
-// }
-// const loginContributor = async (data) => {4
-//     try
-//     {
-//         const dbcon = await dbPromise;
-//         const user = dbcon.get('SELECT email, firstname, lastname FROM contiributor WHERE email = (?) AND password = (?)', [data.email, data.password]);
-//         return user; 
-//     }
-//     catch(error)
-//     {
-//         console.log('något gick fel med inloggning i databasen')
-//     }
-// }
+
+
 const image = async (fileName, id) => {
     try 
     {
@@ -272,6 +254,7 @@ const image = async (fileName, id) => {
         console.log(error)
     }
 }
+
 module.exports = {
     getUsers : getUsers,
     getQuestions : getQuestions,
@@ -290,8 +273,5 @@ module.exports = {
     upQuestion : upQuestion,
     upAnswer : upAnswer,
     loginUser : loginUser,
-    
-    // loginAdmin : loginAdmin,
-    // loginContributor : loginContributor,
     image : image
 };
